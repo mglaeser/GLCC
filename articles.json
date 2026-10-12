@@ -1,0 +1,44 @@
+[
+  {
+    "title": "Apple wanted to buy brighter AI. Now Canon has made its move.",
+    "source": "WirtschaftsWoche",
+    "link": "https://www.wiwo.de/technologie/digitale-welt/ki-app-fuer-videos-eigentlich-wollte-apple-brighter-ai-kaufen-nun-schlaegt-canon-zu/100118821.html",
+    "logos": ["wiwo"]
+  },
+  {
+    "title": "The Spark — The German Digital Award",
+    "source": "McKinsey & Handelsblatt",
+    "link": "https://award.handelsblatt.com/the-spark/en/review-the-spark-2019/",
+    "logos": ["handelsblatt"]
+  },
+  {
+    "title": "Germany’s 20 most promising AI startups",
+    "source": "WirtschaftsWoche",
+    "link": "https://www.wiwo.de/technologie/digitale-welt/kuenstliche-intelligenz-das-sind-die-20-aussichtsreichsten-ki-start-ups-deutschlands/29245094.html",
+    "logos": ["wiwo"]
+  },
+  {
+    "title": "Deutsche Bahn invests in an AI anonymiser",
+    "source": "Business Insider",
+    "link": "https://www.businessinsider.de/gruenderszene/news/news-ticker-2023-02-brighter-ai/",
+    "logos": ["business-insider"]
+  },
+  {
+    "title": "Thinking A.I.? Think Berlin!",
+    "source": "The Washington Post · BrandStudio",
+    "link": "https://www.washingtonpost.com/brand-studio/wp/2019/03/21/feature/thinking-a-i-think-berlin/",
+    "logos": ["washington-post"]
+  },
+  {
+    "title": "brighter AI: German AI Award",
+    "source": "Axel Springer",
+    "link": "https://www.axelspringer.com/en/ax-press-release/welt-awards-the-german-ai-award-to-pioneers-and-practitioners-from-business-and-science",
+    "logos": ["axel-springer"]
+  },
+  {
+    "title": "These 5 startups are hidden gems for investors",
+    "source": "Business Insider",
+    "link": "https://www.businessinsider.de/gruenderszene/technologie/rising-stars-ki/",
+    "logos": ["business-insider"]
+  }
+]
