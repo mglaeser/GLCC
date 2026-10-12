@@ -304,9 +304,7 @@
           source.target = "_blank";
           source.rel = "noopener noreferrer";
           source.tabIndex = -1;
-          const name = document.createElement("span");
-          name.textContent = article.source;
-          source.append(name);
+          source.setAttribute("aria-label", article.source);
           const marks = document.createElement("span");
           marks.className = "source-logos";
           marks.setAttribute("aria-hidden", "true");
@@ -320,7 +318,12 @@
             svg.append(use);
             marks.append(svg);
           }
-          source.append(marks);
+          if (article.sourceInLogo !== true || !marks.childElementCount) {
+            const name = document.createElement("span");
+            name.textContent = article.source;
+            source.append(name);
+          }
+          if (marks.childElementCount) source.append(marks);
           caption.append(source);
           figure.append(title, caption);
           container.append(figure);
