@@ -21,24 +21,28 @@
     "title": "Deutsche Bahn invests in an AI anonymiser",
     "source": "Business Insider",
     "link": "https://www.businessinsider.de/gruenderszene/news/news-ticker-2023-02-brighter-ai/",
-    "logos": ["business-insider"]
+    "logos": ["business-insider"],
+    "sourceInLogo": true
   },
   {
     "title": "Thinking A.I.? Think Berlin!",
-    "source": "The Washington Post · BrandStudio",
+    "source": "The Washington Post",
     "link": "https://www.washingtonpost.com/brand-studio/wp/2019/03/21/feature/thinking-a-i-think-berlin/",
-    "logos": ["washington-post"]
+    "logos": ["washington-post"],
+    "sourceInLogo": true
   },
   {
     "title": "brighter AI: German AI Award",
     "source": "Axel Springer",
     "link": "https://www.axelspringer.com/en/ax-press-release/welt-awards-the-german-ai-award-to-pioneers-and-practitioners-from-business-and-science",
-    "logos": ["axel-springer"]
+    "logos": ["axel-springer"],
+    "sourceInLogo": true
   },
   {
     "title": "These 5 startups are hidden gems for investors",
     "source": "Business Insider",
     "link": "https://www.businessinsider.de/gruenderszene/technologie/rising-stars-ki/",
-    "logos": ["business-insider"]
+    "logos": ["business-insider"],
+    "sourceInLogo": true
   }
 ]
