@@ -12,6 +12,8 @@ White space, a black SVG monogram and system typography. Everything needed to dr
 
 The two-line “Capital & Consulting” signature uses Optima letterforms drawn as inline SVG paths, so it looks the same without installing or downloading a font. The visible width of “Consulting” is the original GL mark’s width divided by φ² (approximately 38.2%); placement and line spacing are optically balanced beneath the L. The original monogram paths and monogram-only favicon remain unchanged.
 
+On a fresh visit, white bars rise in a quick left-to-right sequence while the chart glides left on black. They settle at their fixed heights before one bar opens like a hinged plane: four straight edges turn from a narrow perspective into the existing page. The full introduction takes about 1.75 seconds. This short introduction is drawn in inline SVG and driven by a single native JavaScript timeline; it adds no downloads or dependencies. The first headline’s reading time starts after the reveal. Escape or Tab skips the introduction; reduced motion, background visits and restored pages bypass it. If animation setup fails, a short safety timeout releases the ordinary page. All geometry and timing live beside the intro controller in `index.html`.
+
 The headline area keeps a steady height as the text changes. The rotation continues while hovering; focusing a source link still pauses it so keyboard users can open an article comfortably. Inactive tabs pause too; reduced-motion preferences remove the fades. If the article data cannot be loaded, the monogram and company details remain available.
 
 ## The selection

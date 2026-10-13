@@ -151,7 +151,192 @@
         height: 28px;
       }
     }
+
+    /* Only enhanced visits get an intro; the ordinary page is the fallback. */
+    .intro-pending { overflow: hidden; }
+    .intro-pending:not(.intro-running)::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: #000;
+    }
+    .intro-layer {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      display: block;
+    }
+    .intro-pending .press-item.is-current { transition: none; }
   </style>
+  <script>
+    // A single, temporary SVG reveals the real page, never a scaled copy of it.
+    (() => {
+      const root = document.documentElement;
+      let resolveReady;
+      const intro = window.glccIntro = {
+        active: false,
+        ready: new Promise(resolve => { resolveReady = resolve; })
+      };
+      let done = false, svg, frame, watchdog, main, previousInert;
+      const listeners = new AbortController();
+      function finish() {
+        if (done) return;
+        done = true;
+        intro.active = false;
+        cancelAnimationFrame(frame);
+        clearTimeout(watchdog);
+        listeners.abort();
+        svg?.remove();
+        root.classList.remove("intro-pending", "intro-running");
+        if (main) main.inert = previousInert;
+        resolveReady();
+      }
+      try {
+        const motion = matchMedia("(prefers-reduced-motion: reduce)");
+        const restored = performance.getEntriesByType("navigation")[0]?.type === "back_forward";
+        if (motion.matches || document.hidden || restored) { finish(); return; }
+        const options = { signal: listeners.signal };
+        // This head-level guard also releases the page if later setup fails.
+        watchdog = setTimeout(finish, 2500);
+        intro.active = true;
+        root.classList.add("intro-pending");
+        addEventListener("pagehide", finish, options);
+        addEventListener("resize", finish, options);
+        addEventListener("keydown", event => {
+          if (event.key === "Escape" || event.key === "Tab") finish();
+        }, options);
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) finish();
+        }, options);
+        motion.addEventListener("change", () => {
+          if (motion.matches) finish();
+        }, options);
+        document.addEventListener("DOMContentLoaded", start, { ...options, once: true });
+      } catch { finish(); }
+
+      function start() {
+        if (done) return;
+        try {
+          const width = innerWidth, height = innerHeight;
+          const chartWidth = Math.min(width * .78, height * 1.75, 1080);
+          const chartHeight = Math.min(height * .42, chartWidth * (width < 600 ? .62 : .38));
+          const left = (width - chartWidth) / 2;
+          const pitch = chartWidth / 20, barWidth = pitch * .76;
+          const baseline = height * .52 + chartHeight * .35;
+          const curve = chartHeight * .065;
+          const selected = 11;
+          // Extra bars enter at the right during the 1.8-pitch leftward glide.
+          const heights = [.035, .05, .065, .08, .105, .095, .14, .18, .155,
+            .17, .21, .27, .31, .29, .43, .52, .6, .55, .74, .96, 1.02, 1.08, 1.12];
+          const ns = "http://www.w3.org/2000/svg";
+          const node = (tag, attributes, parent) => {
+            const element = document.createElementNS(ns, tag);
+            for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, value);
+            parent?.append(element);
+            return element;
+          };
+          svg = node("svg", { class: "intro-layer", viewBox: `0 0 ${width} ${height}`,
+            preserveAspectRatio: "none", "aria-hidden": "true", focusable: "false" });
+          const defs = node("defs", {}, svg);
+          const mask = node("mask", { id: "intro-opening", maskUnits: "userSpaceOnUse",
+            x: 0, y: 0, width, height, "mask-type": "luminance" }, defs);
+          node("rect", { width, height, fill: "white" }, mask);
+          const opening = node("path", { fill: "black" }, mask);
+          const clip = node("clipPath", { id: "intro-chart", clipPathUnits: "userSpaceOnUse" }, defs);
+          const bounds = node("rect", { x: left, width: chartWidth, height }, clip);
+          node("rect", { width, height, fill: "black", mask: "url(#intro-opening)" }, svg);
+          const bars = node("g", { fill: "white", "clip-path": "url(#intro-chart)" }, svg);
+          const paths = heights.map(() => node("path", {}, bars));
+          const surface = node("path", { fill: "white" }, svg);
+          const clamp = value => Math.max(0, Math.min(1, value));
+          const mix = (a, b, p) => a + (b - a) * p;
+          const out = p => 1 - (1 - clamp(p)) ** 3;
+          const rise = (i, time) => out((time - i * .016) / .19);
+          const openingStart = .56, openingPace = 1.5;
+          const duration = openingStart + (1.15 - .36) * openingPace;
+          // Normalized opening samples measured from the reference, in seconds.
+          const widths = [[.36, 0], [.5, .022], [.62, .126], [.7, .293],
+            [.8, .591], [.9, .914], [1.04, 1], [1.15, 1]];
+          const verticals = [[.36, 0], [.62, .08], [.7, .19], [.8, .43],
+            [.9, .74], [1.04, .98], [1.15, 1]];
+          // Monotone cubic interpolation keeps velocity continuous between samples.
+          function sample(points, time) {
+            if (time <= points[0][0]) return points[0][1];
+            if (time >= points.at(-1)[0]) return points.at(-1)[1];
+            const i = points.findIndex(point => point[0] > time) - 1;
+            const slope = j => (points[j + 1][1] - points[j][1]) / (points[j + 1][0] - points[j][0]);
+            const tangent = j => {
+              if (j === 0 || j === points.length - 1) return 0;
+              const a = slope(j - 1), b = slope(j);
+              return a * b > 0 ? 2 * a * b / (a + b) : 0;
+            };
+            const [t0, a] = points[i], [t1, b] = points[i + 1];
+            const span = t1 - t0, p = (time - t0) / span;
+            return (2*p**3 - 3*p**2 + 1)*a + (p**3 - 2*p**2 + p)*span*tangent(i)
+              + (-2*p**3 + 3*p**2)*b + (p**3 - p**2)*span*tangent(i + 1);
+          }
+          const contour = (x0, x1, top, bottom) => {
+            const edge = (fn, x) => fn(x).toFixed(2);
+            return `M${x0.toFixed(2)} ${edge(top,x0)}L${x1.toFixed(2)} ${edge(top,x1)}`
+              + `L${x1.toFixed(2)} ${edge(bottom,x1)}L${x0.toFixed(2)} ${edge(bottom,x0)}Z`;
+          };
+          function draw(time) {
+            const drift = 1.8 * pitch * out(time / .3);
+            // Let the staggered rise settle, then keep the slower opening intact.
+            const openingTime = .36 + Math.max(0, time - openingStart) / openingPace;
+            const spread = sample(widths, openingTime), vertical = sample(verticals, openingTime);
+            const center = left + (selected + .8) * pitch - drift;
+            const openingWidth = mix(barWidth, width + 4, spread);
+            // The left edge lingers as a hinge; perspective settles to a flat page.
+            const x0 = mix(center - barWidth / 2, -2, spread ** 1.7);
+            const x1 = x0 + openingWidth, openingCenter = (x0 + x1) / 2;
+            const baseAt = x => baseline + curve * ((x - width / 2) / (chartWidth / 2)) ** 2;
+            const top = mix(baseAt(center) - heights[selected] * chartHeight * rise(selected, time), -2, vertical);
+            const bottom = mix(baseAt(center), height + 2, vertical);
+            const perspective = (bottom - top) * .16 * Math.sin(Math.PI * spread);
+            const depthAt = x => perspective * (2 * (x - x0) / openingWidth - 1);
+            const openingPath = contour(x0, x1,
+              x => top - depthAt(x), x => bottom + depthAt(x));
+            opening.setAttribute("d", openingPath);
+            surface.setAttribute("d", openingPath);
+            surface.setAttribute("opacity", 1 - out((openingTime - .7) / .24));
+            bounds.setAttribute("x", mix(left, -barWidth, spread));
+            bounds.setAttribute("width", mix(chartWidth, width + 2 * barWidth, spread));
+            paths.forEach((path, i) => {
+              if (i === selected) return;
+              const originalX = left + (i + .8) * pitch - drift;
+              const displacement = Math.sign(i - selected) * (openingWidth - barWidth) / 2 + openingCenter - center;
+              const x = originalX + displacement;
+              const h = heights[i] * chartHeight * rise(i, time);
+              const y = position => height / 2 + (baseAt(position - displacement) - height / 2) * (1 + 2.5 * vertical);
+              path.setAttribute("d", contour(x - barWidth / 2, x + barWidth / 2,
+                position => y(position) - h * (1 + 2.5 * vertical), y));
+            });
+          }
+          main = document.querySelector("main");
+          previousInert = main.inert;
+          main.inert = true;
+          draw(0);
+          document.body.append(svg);
+          root.classList.add("intro-running");
+          const started = performance.now();
+          function tick(now) {
+            if (done) return;
+            try {
+              const time = (now - started) / 1000;
+              if (time >= duration) { finish(); return; }
+              draw(time);
+              frame = requestAnimationFrame(tick);
+            } catch { finish(); }
+          }
+          frame = requestAnimationFrame(tick);
+        } catch { finish(); }
+      }
+    })();
+  </script>
 </head>
 <body>
 
@@ -344,7 +529,8 @@
         let timer;
         let deadline = 0;
         let remaining = motion.matches ? 0 : 1000;
-        const paused = () => document.hidden || section.contains(document.activeElement);
+        let awaitingIntro = Boolean(window.glccIntro?.active);
+        const paused = () => awaitingIntro || document.hidden || section.contains(document.activeElement);
         const reveal = (item, visible) => {
           item.classList.toggle("is-current", visible);
           item.inert = !visible;
@@ -399,7 +585,14 @@
         // Establish the hidden styles before the first fade-in.
         void container.offsetWidth;
         reveal(items[current], true);
-        schedule();
+        if (awaitingIntro) {
+          // The first headline is revealed with the page and gets its full hold.
+          phase = "hold";
+          remaining = holdMs;
+          window.glccIntro.ready.then(() => { awaitingIntro = false; schedule(); });
+        } else {
+          schedule();
+        }
       }
 
       loadArticles();
