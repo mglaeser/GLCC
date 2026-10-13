@@ -4,13 +4,13 @@
 
 A quiet, monochrome home for G.L. Capital & Consulting. The original GL monogram sits above a changing selection of headlines on artificial intelligence, entrepreneurship and brighter AI.
 
-Each headline fades in, stays for three seconds and fades out. Its source opens the original article. German headlines are presented as English translations; the linked publications remain the original sources.
+Each headline fades in, stays for 2.5 seconds and fades out. Its source opens the original article. German headlines are presented as English translations; the linked publications remain the original sources.
 
 ## The page
 
 White space, a black SVG monogram and system typography. Everything needed to draw and animate the page lives in `index.html`; there are no libraries, external fonts, trackers or build steps. The existing company details stay at the foot of the page.
 
-The headline area keeps a steady height as the text changes. Hovering over it or focusing a source link pauses the rotation so an article can be opened comfortably. Inactive tabs pause too; reduced-motion preferences remove the fades. If the article data cannot be loaded, the monogram and company details remain available.
+The headline area keeps a steady height as the text changes. The rotation continues while hovering; focusing a source link still pauses it so keyboard users can open an article comfortably. Inactive tabs pause too; reduced-motion preferences remove the fades. If the article data cannot be loaded, the monogram and company details remain available.
 
 ## The selection
 
