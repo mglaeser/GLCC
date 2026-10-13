@@ -330,14 +330,13 @@
           return figure;
         });
         const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-        const holdMs = 3000;
+        const holdMs = 2500;
         let current = 0;
         let phase = "enter";
         let timer;
         let deadline = 0;
         let remaining = motion.matches ? 0 : 1000;
-        let hovering = false;
-        const paused = () => document.hidden || hovering || section.contains(document.activeElement);
+        const paused = () => document.hidden || section.contains(document.activeElement);
         const reveal = (item, visible) => {
           item.classList.toggle("is-current", visible);
           item.inert = !visible;
@@ -379,8 +378,6 @@
           }
           schedule();
         }
-        section.addEventListener("pointerenter", event => { if (event.pointerType !== "touch") { hovering = true; updatePause(); } });
-        section.addEventListener("pointerleave", () => { hovering = false; updatePause(); });
         section.addEventListener("focusin", updatePause);
         section.addEventListener("focusout", () => queueMicrotask(updatePause));
         document.addEventListener("visibilitychange", updatePause);
