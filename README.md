@@ -10,6 +10,8 @@ Each headline fades in, stays for 2.5 seconds and fades out. Its source opens th
 
 White space, a black SVG monogram and system typography. Everything needed to draw and animate the page lives in `index.html`; there are no libraries, external fonts, trackers or build steps. The existing company details stay at the foot of the page.
 
+“Capital &” and “Consulting” sit inside the original inline SVG, in the space below the L. The two lines use a 6:5 leading-to-type-size ratio, optically aligned to the L stem and the G’s lower sweep. Fixed SVG line widths keep the proportions consistent as the logo scales; its original paths and the monogram-only favicon remain unchanged.
+
 The headline area keeps a steady height as the text changes. The rotation continues while hovering; focusing a source link still pauses it so keyboard users can open an article comfortably. Inactive tabs pause too; reduced-motion preferences remove the fades. If the article data cannot be loaded, the monogram and company details remain available.
 
 ## The selection
